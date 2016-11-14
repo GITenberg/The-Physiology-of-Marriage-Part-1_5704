@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: oAtDfMEme2Ff+is5wGC5WM7PHOVXTAqfxuVaLUQ67HwEoeF0eNURVae0FgNsfw2x66mQYVj4jG57yBBXxNY+rnbP83q1Jkrorp8VI3m9BioWCoRd39qTKiLWeB+YDEt5yyrTnuBvhfe+sahYqbf+PurF3urE82UfFqpAij3iaE9r4Yl6naMbtI7CLGnujC8IklqvBmk0XQjNs6X6DrH91T13zMkk4Bu7AsTOGgKoBoy1cKKkLqLo8FzxsX/jxjZ3ZK6XRJ36KXaN9sS0oURVoz6M203JhNu4NdQ66uBE7S6ht43eHvIoIQS3YFKInKEAQw2eqpr2YAYtgwp0KRDFlu1lUJIhgZCZNC9Rx7cVQql+u1crGroL8LhzLryzg9Jo3OJ7f+rm2XiG8hwMvLUDyohbleNBI9gh4hGFkyJju6V0QgBDKL/QFnGz3HVWS+w4k5G4aRd+j0tgcP5YoC1dc8hJZNonR6/zT4tQ/gCDaUfkpZOm4RkyEgzT85W8Me6wvgn1Sm30YcBaQzA/VmeydrbwYQXYs9RhZ1EjMPFNCtfvkb9lp41eehIsMyX5hGT++g91TgDILWGBktllsL8WOFtXJ42XV+BNL1UjhY0nQ5+8ZxRb46tNtQZELCKm7Ge9AyK0O/G6MK0ATtRLZsolRg4Iq6WADkpRMOdS15AA+iI=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Physiology-of-Marriage-Part-1_5704
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
